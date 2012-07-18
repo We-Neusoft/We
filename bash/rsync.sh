@@ -13,7 +13,7 @@ touch $LOCK
 # centos
 /usr/bin/rsync -azq --delete-delay mirrors.kernel.org::centos $ROOT/centos/
 
-# CPAN
+# cpan
 /usr/bin/rsync -azq --delete-delay mirrors.kernel.org::CPAN $ROOT/cpan/
 
 # cygwin
