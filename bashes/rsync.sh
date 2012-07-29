@@ -57,7 +57,7 @@ rsync ubuntu mirrors.kernel.org::ubuntu
 unset RESULT
 
 # ubuntu-release
-rsync ubuntu-release mirrors.kernel.org::ubuntu-releases
+rsync ubuntu-releases mirrors.kernel.org::ubuntu-releases
 unset RESULT
 
 # pypi
