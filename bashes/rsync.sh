@@ -9,11 +9,10 @@ touch $LOCK
 
 function rsync {
    echo -1 > $ROOT/.$1.status
-   /usr/bin/rsync -azq --delete-delay $2 $ROOT/$1/
+   /usr/bin/rsync -azq --delete-delay $2 $ROOT/$1/ > /dev/null
    RESULT=$?
    echo $RESULT > $ROOT/.$1.status
-   if $RESULT -eq 0
-   then
+   if [ $RESULT -eq 0 ]; then
       date "+%Y-%m-%d %H:%M:%S %Z" > $ROOT/.$1.timestamp
    fi
 }
@@ -40,7 +39,9 @@ unset RESULT
 
 # epel
 rsync epel mirrors.kernel.org::fedora-epel
-[ $RESULT -eq 0 ] && /usr/bin/report_mirror > /dev/null
+if [ $RESULT -eq 0 ]; then
+   /usr/bin/report_mirror > /dev/null
+fi
 unset RESULT
 
 # gentoo
@@ -64,8 +65,7 @@ echo -1 > $ROOT/.pypi.status
 /usr/bin/pep381run -q $ROOT/pypi/
 RESULT=$?
 echo $RESULT > $ROOT/.pypi.status
-if $RESULT -eq 0
-then
+if [ $RESULT -eq 0 ]; then
    date "+%Y-%m-%d %H:%M:%S %Z" > $ROOT/.pypi.timestamp
 fi
 unset RESULT
