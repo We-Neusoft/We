@@ -12,7 +12,10 @@ function rsync {
    /usr/bin/rsync -azq --delete-delay $2 $ROOT/$1/
    RESULT=$?
    echo $RESULT > $ROOT/.$1.status
-   [$RESULT -eq 0] date "+%Y-%m-%d %H:%M:%S %Z" > $ROOT/.$1.timestamp
+   if $RESULT -eq 0
+   then
+      date "+%Y-%m-%d %H:%M:%S %Z" > $ROOT/.$1.timestamp
+   fi
 }
 
 # apache
@@ -61,7 +64,10 @@ echo -1 > $ROOT/.pypi.status
 /usr/bin/pep381run -q $ROOT/pypi/
 RESULT=$?
 echo $RESULT > $ROOT/.pypi.status
-[ $RESULT -eq 0 ] date "+%Y-%m-%d %H:%M:%S %Z" >> $ROOT/.pypi.timestamp
+if $RESULT -eq 0
+then
+   date "+%Y-%m-%d %H:%M:%S %Z" > $ROOT/.pypi.timestamp
+fi
 unset RESULT
 
 rm -f $LOCK
