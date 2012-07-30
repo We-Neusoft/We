@@ -17,24 +17,8 @@ function rsync {
    fi
 }
 
-# apache
-rsync apache rsync.apache.org::apache-dist
-unset RESULT
-
 # centos
 rsync centos mirrors.kernel.org::centos
-unset RESULT
-
-# cpan
-rsync cpan mirrors.kernel.org::CPAN
-unset RESULT
-
-# cygwin
-rsync cygwin mirrors.kernel.org::sourceware/cygwin/
-unset RESULT
-
-# eclipse
-rsync eclipse download.eclipse.org::eclipseMirror
 unset RESULT
 
 # epel
@@ -42,14 +26,6 @@ rsync epel mirrors.kernel.org::fedora-epel
 if [ $RESULT -eq 0 ]; then
    /usr/bin/report_mirror > /dev/null
 fi
-unset RESULT
-
-# gentoo
-rsync gentoo mirrors.kernel.org::gentoo
-unset RESULT
-
-# putty
-rsync putty rsync.chiark.greenend.org.uk::ftp/users/sgtatham/putty-website-mirror/
 unset RESULT
 
 # ubuntu
@@ -60,6 +36,14 @@ unset RESULT
 rsync ubuntu-releases mirrors.kernel.org::ubuntu-releases
 unset RESULT
 
+# gentoo
+rsync gentoo mirrors.kernel.org::gentoo
+unset RESULT
+
+# cpan
+rsync cpan mirrors.kernel.org::CPAN
+unset RESULT
+
 # pypi
 echo -1 > $ROOT/.pypi.status
 /usr/bin/pep381run -q $ROOT/pypi/
@@ -68,6 +52,22 @@ echo $RESULT > $ROOT/.pypi.status
 if [ $RESULT -eq 0 ]; then
    date "+%Y-%m-%d %H:%M:%S %Z" > $ROOT/.pypi.timestamp
 fi
+unset RESULT
+
+# apache
+rsync apache rsync.apache.org::apache-dist
+unset RESULT
+
+# cygwin
+rsync cygwin mirrors.kernel.org::sourceware/cygwin/
+unset RESULT
+
+# eclipse
+rsync eclipse download.eclipse.org::eclipseMirror
+unset RESULT
+
+# putty
+rsync putty rsync.chiark.greenend.org.uk::ftp/users/sgtatham/putty-website-mirror/
 unset RESULT
 
 rm -f $LOCK
