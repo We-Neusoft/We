@@ -44,6 +44,10 @@ unset RESULT
 rsync gentoo mirrors.kernel.org::gentoo
 unset RESULT
 
+# gentoo-portage
+rsync gentoo-portage mirrors.kernel.org::gentoo-portage
+unset RESULT
+
 # cpan
 rsync cpan mirrors.kernel.org::CPAN
 unset RESULT
