@@ -9,7 +9,7 @@ touch $LOCK
 
 function rsync {
    echo -1 > $ROOT/.$1.status
-   /usr/bin/rsync -azq --delete-delay $2 $ROOT/$1/ > /dev/null
+   /usr/bin/rsync -aq --delete-delay $2 $ROOT/$1/ > /dev/null
    RESULT=$?
    echo $RESULT > $ROOT/.$1.status
    if [ $RESULT -eq 0 ]; then
@@ -26,6 +26,10 @@ rsync epel mirrors.kernel.org::fedora-epel
 if [ $RESULT -eq 0 ]; then
    /usr/bin/report_mirror > /dev/null
 fi
+unset RESULT
+
+# dag
+rsync dag apt.sw.be::pub/freshrpms/pub/dag/
 unset RESULT
 
 # ubuntu
