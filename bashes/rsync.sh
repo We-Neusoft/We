@@ -9,7 +9,7 @@ touch $LOCK
 
 function rsync {
    echo -1 > $ROOT/.$1.status
-   /usr/bin/rsync -aq --delete-delay $2 $ROOT/$1/ > /dev/null
+   /usr/bin/rsync -aq --delete-delay --timeout=900 $2 $ROOT/$1/ > /dev/null
    RESULT=$?
    echo $RESULT > $ROOT/.$1.status
    if [ $RESULT -eq 0 ]; then
