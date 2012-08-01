@@ -40,6 +40,10 @@ unset RESULT
 rsync ubuntu-releases mirrors.kernel.org::ubuntu-releases
 unset RESULT
 
+# archlinux
+rsync archlinux mirrors.kernel.org::archlinux
+unset RESULT
+
 # gentoo
 rsync gentoo mirrors.kernel.org::gentoo
 unset RESULT
