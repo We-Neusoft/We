@@ -28,8 +28,8 @@ if [ $RESULT -eq 0 ]; then
 fi
 unset RESULT
 
-# dag
-rsync dag apt.sw.be::pub/freshrpms/pub/dag/
+# repoforge
+rsync repoforge apt.sw.be::pub/freshrpms/pub/dag/
 unset RESULT
 
 # ubuntu
