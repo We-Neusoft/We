@@ -3,3 +3,5 @@
 *.sh text
 *.py text
 *.html text
+*.css text
+*.js text
