@@ -58,11 +58,13 @@ unset RESULT
 
 # pypi
 echo -1 > $ROOT/.pypi.status
-/usr/bin/pep381run -q $ROOT/pypi/
+/usr/bin/pep381run -q $ROOT/pypi/ > /dev/null
 RESULT=$?
 echo $RESULT > $ROOT/.pypi.status
 if [ $RESULT -eq 0 ]; then
    date "+%Y-%m-%d %H:%M:%S %Z" > $ROOT/.pypi.timestamp
+else
+   /usr/bin/pep381checkfiles $ROOT/pypi/ > /dev/null
 fi
 unset RESULT
 
