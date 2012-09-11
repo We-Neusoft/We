@@ -7,13 +7,19 @@ ROOT=/storage/mirror
 
 touch $LOCK
 
+function count {
+   date "+%Y-%m-%d %H:%M:%S %Z" > $ROOT/.$1.timestamp
+   find $ROOT/$1 > $ROOT/.$1.count
+   du -bs $ROOT/$1 > $ROOT/.$1.size
+}
+
 function rsync {
    echo -1 > $ROOT/.$1.status
    /usr/bin/rsync -aq --delete-delay --timeout=900 $2 $ROOT/$1/ > /dev/null
    RESULT=$?
    echo $RESULT > $ROOT/.$1.status
    if [ $RESULT -eq 0 ]; then
-      date "+%Y-%m-%d %H:%M:%S %Z" > $ROOT/.$1.timestamp
+      count $1
    fi
 }
 
@@ -62,7 +68,7 @@ echo -1 > $ROOT/.pypi.status
 RESULT=$?
 echo $RESULT > $ROOT/.pypi.status
 if [ $RESULT -eq 0 ]; then
-   date "+%Y-%m-%d %H:%M:%S %Z" > $ROOT/.pypi.timestamp
+   count $1
 else
    /usr/bin/pep381checkfiles $ROOT/pypi/ > /dev/null
 fi
