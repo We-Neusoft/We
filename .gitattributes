@@ -2,6 +2,7 @@
 
 *.sh text
 *.py text
+*.weml text
 *.html text
 *.css text
 *.js text
