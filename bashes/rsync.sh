@@ -8,8 +8,8 @@ ROOT=/storage/mirror
 touch $LOCK
 
 function count {
-   du -bs $ROOT/$1 | awk '{print $1}' > $ROOT/.$1.size
    find $ROOT/$1 | wc -l > $ROOT/.$1.count
+   du -bs $ROOT/$1 | awk '{print $1}' > $ROOT/.$1.size
    date "+%Y-%m-%d %H:%M:%S %Z" > $ROOT/.$1.timestamp
 }
 
