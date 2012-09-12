@@ -8,8 +8,8 @@ ROOT=/storage/mirror
 touch $LOCK
 
 function count {
-   find $ROOT/$1 | wc -l > $ROOT/.$1.count
    du -bs $ROOT/$1 | awk '{print $1}' > $ROOT/.$1.size
+   find $ROOT/$1 | wc -l > $ROOT/.$1.count
    date "+%Y-%m-%d %H:%M:%S %Z" > $ROOT/.$1.timestamp
 }
 
@@ -84,6 +84,10 @@ unset RESULT
 
 # eclipse
 rsync eclipse download.eclipse.org::eclipseMirror
+unset RESULT
+
+# mozilla-current
+rsync mozilla-current releases-rsync.mozilla.org::mozilla-current
 unset RESULT
 
 # putty
