@@ -8,7 +8,7 @@ ROOT=/storage/mirror
 touch $LOCK
 
 function count {
-   find $ROOT/$1 | wc -l > $ROOT/.$1.count
+   find $ROOT/$1 -type f | wc -l > $ROOT/.$1.count
    du -bs $ROOT/$1 | awk '{print $1}' > $ROOT/.$1.size
    date "+%Y-%m-%d %H:%M:%S %Z" > $ROOT/.$1.timestamp
 }
@@ -64,15 +64,15 @@ unset RESULT
 
 # pypi
 echo -1 > $ROOT/.pypi.status
-/usr/bin/pep381run -q $ROOT/pypi/ > /dev/null
-RESULT=$?
-echo $RESULT > $ROOT/.pypi.status
-if [ $RESULT -eq 0 ]; then
-   count $1
-else
-   /usr/bin/pep381checkfiles $ROOT/pypi/ > /dev/null
-fi
-unset RESULT
+#/usr/bin/pep381run -q $ROOT/pypi/ > /dev/null
+#RESULT=$?
+#echo $RESULT > $ROOT/.pypi.status
+#if [ $RESULT -eq 0 ]; then
+#   count $1
+#else
+#   /usr/bin/pep381checkfiles $ROOT/pypi/ > /dev/null
+#fi
+#unset RESULT
 
 # apache
 rsync apache rsync.apache.org::apache-dist
