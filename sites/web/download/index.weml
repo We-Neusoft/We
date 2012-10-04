@@ -35,8 +35,8 @@
             <div class="span2">
                <div>软件分类</div>
                <ul>
-{% for classfication in classfications %}
-                  <li>{{ classfication.name }}</li>
+{% for classification in classifications %}
+                  <li>{{ classification.name }}</li>
 {% endfor %}
                </ul>
             </div>
