@@ -33,21 +33,28 @@
       <div class="container">
          <div class="row">
             <div class="span2">
-               <div>软件分类</div>
+               <strong>软件分类</strong>
                <ul>
 {% for classification in classifications %}
-                  <li data-target="#collapse-{{ classification.name_english }}" data-toggle="collapse">{{ classification.name }}</li>
-                  <div id="collapse-{{ classification.name_english }}" class="collapse">
-                     {{ classification.name_english }}
+                  <li data-target="#classification-{{ classification.key }}" data-toggle="collapse">{{ classification.name }}</li>
+                  <div id="classification-{{ classification.key }}" class="collapse">
+{% for classification in classifications %}
+                     <div>{{ classification.name_english }}</div>
+{% endfor %}
                   </div>
 {% endfor %}
                </ul>
             </div>
             <div class="span2">
-               <div>软件列表</div>
+               <strong>软件列表</strong>
                <ul>
 {% for software in softwares %}
-                  <li>{{ software.name }}</li>
+                  <li data-target="#software-{{ software.key }}" data-toggle="collapse">{{ software.name }}</li>
+                  <div id="software-{{ software.key }}" class="collapse">
+{% for version in software.versions %}
+                     <div>{{ version.name }}（{{ version.comment }}）</div>
+{% endfor %}
+                  </div>
 {% endfor %}
                </ul>
             </div>
