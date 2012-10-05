@@ -36,7 +36,10 @@
                <div>软件分类</div>
                <ul>
 {% for classification in classifications %}
-                  <li>{{ classification.name }}</li>
+                  <li data-target="#collapse-{{ classification.name_english }}" data-toggle="collapse">{{ classification.name }}</li>
+                  <div id="collapse-{{ classification.name_english }}" class="collapse">
+                     {{ classification.name_english }}
+                  </div>
 {% endfor %}
                </ul>
             </div>
