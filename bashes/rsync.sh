@@ -40,10 +40,16 @@ unset RESULT
 
 # ubuntu
 rsync ubuntu mirrors.kernel.org::ubuntu
+if [ $RESULT -eq 0 ]; then
+   date -u > $ROOT/ubuntu/project/trace/mirrors.neusoft.edu.cn
+fi
 unset RESULT
 
 # ubuntu-release
 rsync ubuntu-releases mirrors.kernel.org::ubuntu-releases
+if [ $RESULT -eq 0 ]; then
+   date -u > $ROOT/ubuntu-releases/.trace/mirrors.neusoft.edu.cn
+fi
 unset RESULT
 
 # archlinux
