@@ -53,7 +53,7 @@ fi
 unset RESULT
 
 # archlinux
-rsync archlinux mirrors.kernel.org::archlinux
+rsync archlinux ftp.tku.edu.tw::archlinux
 unset RESULT
 
 # gentoo
