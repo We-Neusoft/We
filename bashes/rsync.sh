@@ -13,9 +13,9 @@ function count {
    date "+%Y-%m-%d %H:%M:%S %Z" > $ROOT/.$1.timestamp
 }
 
-function rsync {
+function rsync_common {
    echo -1 > $ROOT/.$1.status
-   /usr/bin/rsync -aq --delete-delay --timeout=900 $2 $ROOT/$1/ > /dev/null
+   /usr/bin/rsync -aHq --delete-delay --timeout=900 $2 $ROOT/$1/ > /dev/null
    RESULT=$?
    echo $RESULT > $ROOT/.$1.status
    if [ $RESULT -eq 0 ]; then
@@ -23,81 +23,97 @@ function rsync {
    fi
 }
 
+function rsync_rhel {
+   echo -1 > $ROOT/.$1.status
+   /usr/bin/rsync -aHq --exclude="repomd.xml" --timeout=900 $2 $ROOT/$1/ > /dev/null
+   RESULT=$?
+   if [ $RESULT -eq 0 ]; then
+      /usr/bin/rsync -aq --delete-delay --timeout=900 $2 $ROOT/$1/ > /dev/null
+      RESULT=$?
+   fi
+   echo $RESULT > $ROOT/.$1.status
+   if [ $RESULT -eq 0 ]; then
+      count $1
+   fi
+}
+
+function rsync_debian {
+   echo -1 > $ROOT/.$1.status
+   /usr/bin/rsync -aHq --exclude="Packages*" --exclude="Sources*" --exclude="Release" --timeout=900 $2 $ROOT/$1/ > /dev/null
+   RESULT=$?
+   if [ $RESULT -eq 0 ]; then
+      /usr/bin/rsync -aq --delete-delay --timeout=900 $2 $ROOT/$1/ > /dev/null
+      RESULT=$?
+   fi
+   echo $RESULT > $ROOT/.$1.status
+   if [ $RESULT -eq 0 ]; then
+      count $1
+   fi
+}
+
 # centos
-rsync centos mirrors.kernel.org::centos
+rsync_rhel centos mirrors.kernel.org::centos
 unset RESULT
 
 # epel
-rsync epel mirrors.kernel.org::fedora-epel
+rsync_rhel epel mirrors.kernel.org::fedora-epel
 if [ $RESULT -eq 0 ]; then
    /usr/bin/report_mirror > /dev/null
 fi
 unset RESULT
 
 # repoforge
-rsync repoforge apt.sw.be::pub/freshrpms/pub/dag/
+rsync_rhel repoforge apt.sw.be::pub/freshrpms/pub/dag/
 unset RESULT
 
 # ubuntu
-rsync ubuntu mirrors.kernel.org::ubuntu
+rsync_debian ubuntu mirrors.kernel.org::ubuntu
 if [ $RESULT -eq 0 ]; then
    date -u > $ROOT/ubuntu/project/trace/mirrors.neusoft.edu.cn
 fi
 unset RESULT
 
 # ubuntu-release
-rsync ubuntu-releases mirrors.kernel.org::ubuntu-releases
+rsync_common ubuntu-releases mirrors.kernel.org::ubuntu-releases
 if [ $RESULT -eq 0 ]; then
    date -u > $ROOT/ubuntu-releases/.trace/mirrors.neusoft.edu.cn
 fi
 unset RESULT
 
 # archlinux
-rsync archlinux ftp.tku.edu.tw::archlinux
+rsync_common archlinux ftp.tku.edu.tw::archlinux
 unset RESULT
 
 # gentoo
-rsync gentoo mirrors.kernel.org::gentoo
+rsync_common gentoo mirrors.kernel.org::gentoo
 unset RESULT
 
 # gentoo-portage
-rsync gentoo-portage mirrors.kernel.org::gentoo-portage
+rsync_common gentoo-portage mirrors.kernel.org::gentoo-portage
 unset RESULT
 
 # cpan
-rsync cpan mirrors.kernel.org::CPAN
+rsync_common cpan mirrors.kernel.org::CPAN
 unset RESULT
 
-# pypi
-echo -1 > $ROOT/.pypi.status
-#/usr/bin/pep381run -q $ROOT/pypi/ > /dev/null
-#RESULT=$?
-#echo $RESULT > $ROOT/.pypi.status
-#if [ $RESULT -eq 0 ]; then
-#   count $1
-#else
-#   /usr/bin/pep381checkfiles $ROOT/pypi/ > /dev/null
-#fi
-#unset RESULT
-
 # apache
-rsync apache rsync.apache.org::apache-dist
+rsync_common apache rsync.apache.org::apache-dist
 unset RESULT
 
 # cygwin
-rsync cygwin mirrors.kernel.org::sourceware/cygwin/
+rsync_common cygwin mirrors.kernel.org::sourceware/cygwin/
 unset RESULT
 
 # eclipse
-rsync eclipse download.eclipse.org::eclipseMirror
+rsync_common eclipse download.eclipse.org::eclipseMirror
 unset RESULT
 
 # mozilla-current
-rsync mozilla-current releases-rsync.mozilla.org::mozilla-current
+rsync_common mozilla-current releases-rsync.mozilla.org::mozilla-current
 unset RESULT
 
 # putty
-rsync putty rsync.chiark.greenend.org.uk::ftp/users/sgtatham/putty-website-mirror/
+rsync_common putty rsync.chiark.greenend.org.uk::ftp/users/sgtatham/putty-website-mirror/
 unset RESULT
 
 rm -f $LOCK
