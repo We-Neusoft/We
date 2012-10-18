@@ -52,11 +52,11 @@ function rsync_debian {
 }
 
 # centos
-rsync_rhel centos mirrors.kernel.org::centos
+rsync_rhel centos mirrors.ustc.edu.cn::centos
 unset RESULT
 
 # epel
-rsync_rhel epel mirrors.kernel.org::fedora-epel
+rsync_rhel epel mirrors.ustc.edu.cn::fedora-epel
 if [ $RESULT -eq 0 ]; then
    /usr/bin/report_mirror > /dev/null
 fi
@@ -67,14 +67,14 @@ rsync_rhel repoforge apt.sw.be::pub/freshrpms/pub/dag/
 unset RESULT
 
 # ubuntu
-rsync_debian ubuntu mirrors.kernel.org::ubuntu
+rsync_debian ubuntu archive.ubuntu.com::ubuntu
 if [ $RESULT -eq 0 ]; then
    date -u > $ROOT/ubuntu/project/trace/mirrors.neusoft.edu.cn
 fi
 unset RESULT
 
 # ubuntu-release
-rsync_common ubuntu-releases mirrors.kernel.org::ubuntu-releases
+rsync_common ubuntu-releases rsync.releases.ubuntu.com::releases
 if [ $RESULT -eq 0 ]; then
    date -u > $ROOT/ubuntu-releases/.trace/mirrors.neusoft.edu.cn
 fi
@@ -85,15 +85,15 @@ rsync_common archlinux ftp.tku.edu.tw::archlinux
 unset RESULT
 
 # gentoo
-rsync_common gentoo mirrors.kernel.org::gentoo
+rsync_common gentoo rsync.us.gentoo.org::gentoo
 unset RESULT
 
 # gentoo-portage
-rsync_common gentoo-portage mirrors.kernel.org::gentoo-portage
+rsync_common gentoo-portage rsync.us.gentoo.org::gentoo-portage
 unset RESULT
 
 # cpan
-rsync_common cpan mirrors.kernel.org::CPAN
+rsync_common cpan cpan-rsync.perl.org::CPAN
 unset RESULT
 
 # apache
