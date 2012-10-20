@@ -67,6 +67,7 @@ rsync_rhel repoforge apt.sw.be::pub/freshrpms/pub/dag/
 unset RESULT
 
 # ubuntu
+rsync_debian ubuntu mirrors.ustc.edu.cn::ubuntu
 rsync_debian ubuntu archive.ubuntu.com::ubuntu
 if [ $RESULT -eq 0 ]; then
    date -u > $ROOT/ubuntu/project/trace/mirrors.neusoft.edu.cn
@@ -74,6 +75,7 @@ fi
 unset RESULT
 
 # ubuntu-release
+rsync_common ubuntu-releases mirrors.ustc.edu.cn::ubuntu-releases
 rsync_common ubuntu-releases rsync.releases.ubuntu.com::releases
 if [ $RESULT -eq 0 ]; then
    date -u > $ROOT/ubuntu-releases/.trace/mirrors.neusoft.edu.cn
@@ -81,19 +83,18 @@ fi
 unset RESULT
 
 # archlinux
+rsync_common archlinux mirrors.ustc.edu.cn::archlinux
 rsync_common archlinux ftp.tku.edu.tw::archlinux
 unset RESULT
 
 # gentoo
+rsync_common gentoo mirrors.ustc.edu.cn::gentoo
 rsync_common gentoo rsync.us.gentoo.org::gentoo
 unset RESULT
 
 # gentoo-portage
+rsync_common gentoo-portage mirrors.ustc.edu.cn::gentoo-portage
 rsync_common gentoo-portage rsync.us.gentoo.org::gentoo-portage
-unset RESULT
-
-# cpan
-rsync_common cpan cpan-rsync.perl.org::CPAN
 unset RESULT
 
 # apache
