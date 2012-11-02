@@ -129,8 +129,17 @@ rsync_common gentoo-portage mirrors.ustc.edu.cn::gentoo-portage 1
 rsync_common gentoo-portage rsync.us.gentoo.org::gentoo-portage 2
 unset RESULT
 
-# apache
-rsync_common apache rsync.apache.org::apache-dist 0
+# pypi
+echo -1 > $ROOT/.pypi.status
+/usr/bin/pep381run -q $ROOT/pypi/ > /dev/null
+RESULT=$?
+echo $RESULT > $ROOT/.pypi.status
+if [ $RESULT -eq 0 ]
+then
+   count pypi
+else
+   /usr/bin/pep381checkfiles $ROOT/pypi/ > /dev/null
+fi
 unset RESULT
 
 # cygwin
@@ -139,10 +148,6 @@ unset RESULT
 
 # eclipse
 rsync_common eclipse download.eclipse.org::eclipseMirror 0
-unset RESULT
-
-# mozilla-current
-rsync_common mozilla-current releases-rsync.mozilla.org::mozilla-current 0
 unset RESULT
 
 # putty
