@@ -124,11 +124,6 @@ rsync_common gentoo mirrors.ustc.edu.cn::gentoo 1
 rsync_common gentoo ftp.ussg.iu.edu::gentoo-distfiles 2
 unset RESULT
 
-# gentoo-portage
-rsync_common gentoo-portage mirrors.ustc.edu.cn::gentoo-portage 1
-rsync_common gentoo-portage rsync.us.gentoo.org::gentoo-portage 2
-unset RESULT
-
 # pypi
 echo -1 > $ROOT/.pypi.status
 /usr/bin/pep381run -q $ROOT/pypi/ > /dev/null
