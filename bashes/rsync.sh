@@ -149,4 +149,8 @@ unset RESULT
 rsync_common putty rsync.chiark.greenend.org.uk::ftp/users/sgtatham/putty-website-mirror/ 0
 unset RESULT
 
+# android
+#/root/shell/android-mirror.py
+#count android
+
 rm -f $LOCK

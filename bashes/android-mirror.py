@@ -6,20 +6,26 @@ from time import mktime, strptime
 from xml.etree import ElementTree as ET
 
 def download(file_name, last_modified):
+   print 'Downloading:\t' + file_name
    urlretrieve(base_url + file_name, work_dir + file_name)
-   utime(file_name, (last_modified, last_modified))
+   utime(work_dir + file_name, (last_modified, last_modified))
+   print 'Downloaded:\t' + file_name
 
    process(file_name)
 
 def process(file_name):
+   print 'Processing:\t' + base_url + file_name
+
    handle = urlopen(base_url + file_name)
    headers = handle.info()
    content_length = int(headers.getheader('Content-Length'))
    last_modified = mktime(strptime(headers.getheader('Last-Modified'), '%a, %d %b %Y %H:%M:%S %Z'))
 
    if path.exists(work_dir + file_name):
-      file_stat = stat(file_name)
+      file_stat = stat(work_dir + file_name)
       if (file_stat.st_mtime == last_modified) and (file_stat.st_size == content_length):
+         print 'Verified:\t' + file_name
+
          return
 
    download(file_name, last_modified)
@@ -31,6 +37,6 @@ namespace = '{http://schemas.android.com/sdk/android/repository/7}'
 
 process(xml_file)
 
-repository = ET.parse(xml_file).getroot()
-for url in repository.iter(namespace + 'url'):
+repository = ET.parse(work_dir + xml_file).getroot()
+for url in repository.findall('.//' + namespace + 'url'):
    process(url.text)
