@@ -150,7 +150,13 @@ rsync_common putty rsync.chiark.greenend.org.uk::ftp/users/sgtatham/putty-websit
 unset RESULT
 
 # android
-#/root/shell/android-mirror.py
-#count android
+echo -1 > $ROOT/.android.status
+/root/shell/android-mirror.py
+RESULT=$?
+echo $RESULT > $ROOT/.android.status
+if [ $RESULT -eq 0 ]; then
+   count android
+fi
+unset RESULT
 
 rm -f $LOCK
