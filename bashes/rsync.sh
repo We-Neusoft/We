@@ -133,7 +133,7 @@ if [ $RESULT -eq 0 ]
 then
    count pypi
 else
-   /usr/bin/pep381checkfiles $ROOT/pypi/ > /dev/null
+   /usr/bin/pep381checkfiles $ROOT/pypi/ > /dev/null &
 fi
 unset RESULT
 

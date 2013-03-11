@@ -6,16 +6,12 @@ from time import mktime, strptime
 from xml.etree import ElementTree as ET
 
 def download(file_name, last_modified):
-   print 'Downloading:\t' + file_name
    urlretrieve(base_url + file_name, work_dir + file_name)
    utime(work_dir + file_name, (last_modified, last_modified))
-   print 'Downloaded:\t' + file_name
 
    process(file_name)
 
 def process(file_name):
-   print 'Processing:\t' + base_url + file_name
-
    handle = urlopen(base_url + file_name)
    headers = handle.info()
    content_length = int(headers.getheader('Content-Length'))
@@ -24,8 +20,6 @@ def process(file_name):
    if path.exists(work_dir + file_name):
       file_stat = stat(work_dir + file_name)
       if (file_stat.st_mtime == last_modified) and (file_stat.st_size == content_length):
-         print 'Verified:\t' + file_name
-
          return
 
    download(file_name, last_modified)
