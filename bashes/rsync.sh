@@ -159,4 +159,8 @@ if [ $RESULT -eq 0 ]; then
 fi
 unset RESULT
 
+# qt
+rsync_common qt master.qt-project.org::qt-all 0
+unset RESULT
+
 rm -f $LOCK
