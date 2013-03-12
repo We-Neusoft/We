@@ -5,6 +5,9 @@ from urllib import urlretrieve, urlopen
 from time import mktime, strptime
 from xml.etree import ElementTree as ET
 
+work_dir = '/storage/mirror/android/repository/'
+base_url = 'https://dl-ssl.google.com/android/repository/'
+
 def download(file_name, last_modified):
    urlretrieve(base_url + file_name, work_dir + file_name)
    utime(work_dir + file_name, (last_modified, last_modified))
@@ -12,6 +15,9 @@ def download(file_name, last_modified):
    process(file_name)
 
 def process(file_name):
+   if file_name.startswith('http'):
+      return
+
    handle = urlopen(base_url + file_name)
    headers = handle.info()
    content_length = int(headers.getheader('Content-Length'))
@@ -24,13 +30,15 @@ def process(file_name):
 
    download(file_name, last_modified)
 
-work_dir = '/storage/mirror/android/repository/'
-base_url = 'https://dl-ssl.google.com/android/repository/'
-xml_file = 'repository-7.xml'
-namespace = '{http://schemas.android.com/sdk/android/repository/7}'
+def parse(xml_file, namespace):
+   process(xml_file)
 
-process(xml_file)
+   repository = ET.parse(work_dir + xml_file).getroot()
+   for url in repository.findall('.//' + namespace + 'url'):
+      process(url.text)
 
-repository = ET.parse(work_dir + xml_file).getroot()
-for url in repository.findall('.//' + namespace + 'url'):
-   process(url.text)
+xml_files = ['repository-7.xml', 'addons_list-2.xml', 'addon.xml']
+namespaces = ['{http://schemas.android.com/sdk/android/repository/7}', '{http://schemas.android.com/sdk/android/addons-list/2}', '{http://schemas.android.com/sdk/android/addon/5}']
+
+for index in range(len(xml_files)):
+   parse(xml_files[index], namespaces[index])
