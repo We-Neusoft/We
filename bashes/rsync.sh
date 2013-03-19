@@ -46,7 +46,7 @@ function rsync_rhel {
    RESULT=$?
    if [ $RESULT -eq 0 ]
    then
-      /usr/bin/rsync -aq --delete-delay --timeout=900 $2 $ROOT/$1/ > /dev/null
+      /usr/bin/rsync -aHq --delete-delay --timeout=900 $2 $ROOT/$1/ > /dev/null
       RESULT=$?
    fi
 
@@ -62,16 +62,16 @@ function rsync_debian {
 
    if [ $3 -eq 1 ]
    then
-      /usr/bin/rsync -aHq --exclude="Packages*" --exclude="Sources*" --exclude="Release" --timeout=900 $2 $ROOT/$1/ > /dev/null
+      /usr/bin/rsync -aHq --exclude="*Packages*" --exclude="*Sources*" --exclude="*Release" --timeout=900 $2 $ROOT/$1/ > /dev/null
       return
    fi
 
-   /usr/bin/rsync -aHq --exclude="Packages*" --exclude="Sources*" --exclude="Release" --timeout=900 $2 $ROOT/$1/ > /dev/null
+   /usr/bin/rsync -aHq --exclude="*Packages*" --exclude="*Sources*" --exclude="*Release" --timeout=900 $2 $ROOT/$1/ > /dev/null
 
    RESULT=$?
    if [ $RESULT -eq 0 ]
    then
-      /usr/bin/rsync -aq --delete-delay --timeout=900 $2 $ROOT/$1/ > /dev/null
+      /usr/bin/rsync -aHq --delete-delay --timeout=900 $2 $ROOT/$1/ > /dev/null
       RESULT=$?
    fi
 
@@ -98,12 +98,17 @@ unset RESULT
 rsync_rhel repoforge apt.sw.be::pub/freshrpms/pub/dag/ 0
 unset RESULT
 
-# ubuntu
-rsync_debian ubuntu mirrors.ustc.edu.cn::ubuntu 1
-rsync_debian ubuntu archive.ubuntu.com::ubuntu 2
-if [ $RESULT -eq 0 ]; then
-   date -u > $ROOT/ubuntu/project/trace/mirrors.neusoft.edu.cn
-fi
+# kali-security
+rsync_debian kali-security archive-4.kali.org::kali-security 0
+
+# linuxmint
+rsync_debian linuxmint packages.linuxmint.com::packages 0
+
+# linuxmint-cd
+rsync_debian linuxmint-cd ftp.heanet.ie::pub/linuxmint.com/ 0
+
+# raspbian
+rsync_debian raspbian archive.raspbian.org::archive 0
 unset RESULT
 
 # ubuntu-release
@@ -122,6 +127,10 @@ unset RESULT
 # gentoo
 rsync_common gentoo mirrors.ustc.edu.cn::gentoo 1
 rsync_common gentoo ftp.ussg.iu.edu::gentoo-distfiles 2
+unset RESULT
+
+# gentoo-portage
+rsync_common gentoo-portage rsync.us.gentoo.org::gentoo-portage 0
 unset RESULT
 
 # pypi
