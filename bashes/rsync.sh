@@ -8,7 +8,7 @@ ROOT=/storage/mirror
 touch $LOCK
 
 function set_status {
-   echo -e "set $1_status 0 0 2 noreply\r\n$2\r" | nc 127.0.0.1 11211
+   echo -e "set $1_status 0 0 ${#2} noreply\r\n$2\r" | nc 127.0.0.1 11211
    echo $2 > $ROOT/.$1.status
 }
 
@@ -133,10 +133,10 @@ rsync_common gentoo-portage rsync.us.gentoo.org::gentoo-portage 0
 unset RESULT
 
 # pypi
-set_status(pypi, -1)
+set_status pypi -1
 /usr/bin/pep381run -q $ROOT/pypi/ > /dev/null
 RESULT=$?
-set_status(pypi, $RESULT)
+set_status pypi $RESULT
 if [ $RESULT -eq 0 ]
 then
    /root/shell/count.sh pypi
@@ -158,10 +158,10 @@ rsync_common putty rsync.chiark.greenend.org.uk::ftp/users/sgtatham/putty-websit
 unset RESULT
 
 # android
-set_status(android, -1)
+set_status android -1
 /root/shell/android-mirror.py
 RESULT=$?
-set_status(android, $RESULT)
+set_status android $RESULT
 if [ $RESULT -eq 0 ]; then
    /root/shell/count.sh android
 fi
