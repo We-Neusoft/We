@@ -7,8 +7,13 @@ ROOT=/storage/mirror
 
 touch $LOCK
 
+function set_status {
+   echo -e "set $1_status 0 0 2 noreply\r\n$2\r" | nc 127.0.0.1 11211
+   echo $2 > $ROOT/.$1.status
+}
+
 function rsync_common {
-   echo -1 > $ROOT/.$1.status
+   set_status($1, -1)
 
    if [ $3 -eq 1 ]
    then
@@ -19,14 +24,14 @@ function rsync_common {
    /usr/bin/rsync -aHq --delete-delay --timeout=900 $2 $ROOT/$1/ > /dev/null
    RESULT=$?
 
-   echo $RESULT > $ROOT/.$1.status
+   set_status($1, $RESULT)
    if [ $RESULT -eq 0 ]; then
       /root/shell/count.sh $1
    fi
 }
 
 function rsync_rhel {
-   echo -1 > $ROOT/.$1.status
+   set_status($1, -1)
 
    if [ $3 -eq 1 ]
    then
@@ -43,7 +48,7 @@ function rsync_rhel {
       RESULT=$?
    fi
 
-   echo $RESULT > $ROOT/.$1.status
+   set_status($1, $RESULT)
    if [ $RESULT -eq 0 ]
    then
       /root/shell/count.sh $1
@@ -51,7 +56,7 @@ function rsync_rhel {
 }
 
 function rsync_debian {
-   echo -1 > $ROOT/.$1.status
+   set_status($1, -1)
 
    if [ $3 -eq 1 ]
    then
@@ -68,7 +73,7 @@ function rsync_debian {
       RESULT=$?
    fi
 
-   echo $RESULT > $ROOT/.$1.status
+   set_status($1, $RESULT)
    if [ $RESULT -eq 0 ]
    then
       /root/shell/count.sh $1
@@ -128,10 +133,10 @@ rsync_common gentoo-portage rsync.us.gentoo.org::gentoo-portage 0
 unset RESULT
 
 # pypi
-echo -1 > $ROOT/.pypi.status
+set_status(pypi, -1)
 /usr/bin/pep381run -q $ROOT/pypi/ > /dev/null
 RESULT=$?
-echo $RESULT > $ROOT/.pypi.status
+set_status(pypi, $RESULT)
 if [ $RESULT -eq 0 ]
 then
    /root/shell/count.sh pypi
@@ -153,10 +158,10 @@ rsync_common putty rsync.chiark.greenend.org.uk::ftp/users/sgtatham/putty-websit
 unset RESULT
 
 # android
-echo -1 > $ROOT/.android.status
+set_status(android, -1)
 /root/shell/android-mirror.py
 RESULT=$?
-echo $RESULT > $ROOT/.android.status
+set_status(android, $RESULT)
 if [ $RESULT -eq 0 ]; then
    /root/shell/count.sh android
 fi
