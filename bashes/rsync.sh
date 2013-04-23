@@ -7,13 +7,6 @@ ROOT=/storage/mirror
 
 touch $LOCK
 
-function count {
-   find $ROOT/$1 -type f | wc -l > /tmp/.$1.count
-   du -bs $ROOT/$1 | awk '{print $1}' > /tmp/.$1.size
-   date "+%Y-%m-%d %H:%M:%S %Z" > /tmp/.$1.timestamp
-   mv /tmp/.$1.* $ROOT
-}
-
 function rsync_common {
    echo -1 > $ROOT/.$1.status
 
@@ -28,7 +21,7 @@ function rsync_common {
 
    echo $RESULT > $ROOT/.$1.status
    if [ $RESULT -eq 0 ]; then
-      count $1
+      /root/shell/count.sh $1
    fi
 }
 
@@ -53,7 +46,7 @@ function rsync_rhel {
    echo $RESULT > $ROOT/.$1.status
    if [ $RESULT -eq 0 ]
    then
-      count $1
+      /root/shell/count.sh $1
    fi
 }
 
@@ -78,7 +71,7 @@ function rsync_debian {
    echo $RESULT > $ROOT/.$1.status
    if [ $RESULT -eq 0 ]
    then
-      count $1
+      /root/shell/count.sh $1
    fi
 }
 
@@ -98,20 +91,23 @@ unset RESULT
 rsync_rhel repoforge apt.sw.be::pub/freshrpms/pub/dag/ 0
 unset RESULT
 
-# kali-security
-rsync_debian kali-security archive-4.kali.org::kali-security 0
+# kali-images
+rsync_debian kali-images archive-5.kali.org::kali-images 0
+unset RESULT
 
 # linuxmint
 rsync_debian linuxmint packages.linuxmint.com::packages 0
+unset RESULT
 
-# linuxmint-cd
-rsync_debian linuxmint-cd ftp.heanet.ie::pub/linuxmint.com/ 0
+# linuxmint-releases
+rsync_debian linuxmint-releases ftp.heanet.ie::pub/linuxmint.com/ 0
+unset RESULT
 
 # raspbian
 rsync_debian raspbian archive.raspbian.org::archive 0
 unset RESULT
 
-# ubuntu-release
+# ubuntu-releases
 rsync_common ubuntu-releases mirrors.ustc.edu.cn::ubuntu-releases 1
 rsync_common ubuntu-releases rsync.releases.ubuntu.com::releases 2
 if [ $RESULT -eq 0 ]; then
@@ -120,13 +116,11 @@ fi
 unset RESULT
 
 # archlinux
-rsync_common archlinux mirrors.ustc.edu.cn::archlinux 1
-rsync_common archlinux ftp.tku.edu.tw::archlinux 2
+rsync_common archlinux ftp.tku.edu.tw::archlinux 0
 unset RESULT
 
 # gentoo
-rsync_common gentoo mirrors.ustc.edu.cn::gentoo 1
-rsync_common gentoo ftp.ussg.iu.edu::gentoo-distfiles 2
+rsync_common gentoo ftp.ussg.iu.edu::gentoo-distfiles 0
 unset RESULT
 
 # gentoo-portage
@@ -140,7 +134,7 @@ RESULT=$?
 echo $RESULT > $ROOT/.pypi.status
 if [ $RESULT -eq 0 ]
 then
-   count pypi
+   /root/shell/count.sh pypi
 else
    /usr/bin/pep381checkfiles $ROOT/pypi/ > /dev/null &
 fi
@@ -164,7 +158,7 @@ echo -1 > $ROOT/.android.status
 RESULT=$?
 echo $RESULT > $ROOT/.android.status
 if [ $RESULT -eq 0 ]; then
-   count android
+   /root/shell/count.sh android
 fi
 unset RESULT
 
