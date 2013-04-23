@@ -13,7 +13,7 @@ function set_status {
 }
 
 function rsync_common {
-   set_status($1, -1)
+   set_status $1 -1
 
    if [ $3 -eq 1 ]
    then
@@ -24,14 +24,14 @@ function rsync_common {
    /usr/bin/rsync -aHq --delete-delay --timeout=900 $2 $ROOT/$1/ > /dev/null
    RESULT=$?
 
-   set_status($1, $RESULT)
+   set_status $1 $RESULT
    if [ $RESULT -eq 0 ]; then
       /root/shell/count.sh $1
    fi
 }
 
 function rsync_rhel {
-   set_status($1, -1)
+   set_status $1 -1
 
    if [ $3 -eq 1 ]
    then
@@ -48,7 +48,7 @@ function rsync_rhel {
       RESULT=$?
    fi
 
-   set_status($1, $RESULT)
+   set_status $1 $RESULT
    if [ $RESULT -eq 0 ]
    then
       /root/shell/count.sh $1
@@ -56,7 +56,7 @@ function rsync_rhel {
 }
 
 function rsync_debian {
-   set_status($1, -1)
+   set_status $1 -1
 
    if [ $3 -eq 1 ]
    then
@@ -73,7 +73,7 @@ function rsync_debian {
       RESULT=$?
    fi
 
-   set_status($1, $RESULT)
+   set_status $1 $RESULT
    if [ $RESULT -eq 0 ]
    then
       /root/shell/count.sh $1
