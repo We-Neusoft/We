@@ -12,72 +12,45 @@ function set_status {
    echo $2 > $ROOT/.$1.status
 }
 
-function rsync_common {
+function rsync {
+   /usr/bin/rsync -aHq $3 --timeout=900 $2 $ROOT/$1/ > /dev/null
+}
+
+function rsync_call {
    set_status $1 -1
 
    if [ $3 -eq 1 ]
    then
-      /usr/bin/rsync -aHq --timeout=900 $2 $ROOT/$1/ > /dev/null
+      rsync $1 $2 "$4"
       return
    fi
 
-   /usr/bin/rsync -aHq --delete-delay --timeout=900 $2 $ROOT/$1/ > /dev/null
+   rsync $1 $2 "$4"
+
    RESULT=$?
+   if [ $RESULT -eq 0 ]
+   then
+      rsync $1 $2 "--delete-delay"
+      RESULT=$?
+   fi
 
    set_status $1 $RESULT
-   if [ $RESULT -eq 0 ]; then
+   if [ $RESULT -eq 0 ]
+   then
       /root/shell/count.sh $1
    fi
 }
 
 function rsync_rhel {
-   set_status $1 -1
-
-   if [ $3 -eq 1 ]
-   then
-      /usr/bin/rsync -aHq --exclude="repomd.xml" --timeout=900 $2 $ROOT/$1/ > /dev/null
-      return
-   fi
-
-   /usr/bin/rsync -aHq --exclude="repomd.xml" --timeout=900 $2 $ROOT/$1/ > /dev/null
-
-   RESULT=$?
-   if [ $RESULT -eq 0 ]
-   then
-      /usr/bin/rsync -aHq --delete-delay --timeout=900 $2 $ROOT/$1/ > /dev/null
-      RESULT=$?
-   fi
-
-   set_status $1 $RESULT
-   if [ $RESULT -eq 0 ]
-   then
-      /root/shell/count.sh $1
-   fi
+   rsync_call $1 $2 $3 "--exclude=\"repomd.xml\""
 }
 
 function rsync_debian {
-   set_status $1 -1
+   rsync_call $1 $2 $3 "--exclude=\"*Packages*\" --exclude=\"*Sources*\" --exclude=\"*Release\""
+}
 
-   if [ $3 -eq 1 ]
-   then
-      /usr/bin/rsync -aHq --exclude="*Packages*" --exclude="*Sources*" --exclude="*Release" --timeout=900 $2 $ROOT/$1/ > /dev/null
-      return
-   fi
-
-   /usr/bin/rsync -aHq --exclude="*Packages*" --exclude="*Sources*" --exclude="*Release" --timeout=900 $2 $ROOT/$1/ > /dev/null
-
-   RESULT=$?
-   if [ $RESULT -eq 0 ]
-   then
-      /usr/bin/rsync -aHq --delete-delay --timeout=900 $2 $ROOT/$1/ > /dev/null
-      RESULT=$?
-   fi
-
-   set_status $1 $RESULT
-   if [ $RESULT -eq 0 ]
-   then
-      /root/shell/count.sh $1
-   fi
+function rsync_common {
+   rsync_call $1 $2 $3
 }
 
 # centos
@@ -169,6 +142,10 @@ unset RESULT
 
 # qt
 rsync_common qt master.qt-project.org::qt-all 0
+unset RESULT
+
+# ldp
+rsync_common ldp ftp.ibiblio.org::ldp_mirror 0
 unset RESULT
 
 rm -f $LOCK
