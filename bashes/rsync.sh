@@ -7,79 +7,50 @@ ROOT=/storage/mirror
 
 touch $LOCK
 
-function count {
-   find $ROOT/$1 -type f | wc -l > /tmp/.$1.count
-   du -bs $ROOT/$1 | awk '{print $1}' > /tmp/.$1.size
-   date "+%Y-%m-%d %H:%M:%S %Z" > /tmp/.$1.timestamp
-   mv /tmp/.$1.* $ROOT
+function set_status {
+   echo -e "set $1_status 0 0 ${#2} noreply\r\n$2\r" | nc 127.0.0.1 11211
+   echo $2 > $ROOT/.$1.status
 }
 
-function rsync_common {
-   echo -1 > $ROOT/.$1.status
+function rsync {
+   /usr/bin/rsync -aHq $3 --timeout=900 $2 $ROOT/$1/ > /dev/null
+}
+
+function rsync_call {
+   set_status $1 -1
 
    if [ $3 -eq 1 ]
    then
-      /usr/bin/rsync -aHq --timeout=900 $2 $ROOT/$1/ > /dev/null
+      rsync $1 $2 "$4"
       return
    fi
 
-   /usr/bin/rsync -aHq --delete-delay --timeout=900 $2 $ROOT/$1/ > /dev/null
-   RESULT=$?
+   rsync $1 $2 "$4"
 
-   echo $RESULT > $ROOT/.$1.status
-   if [ $RESULT -eq 0 ]; then
-      count $1
+   RESULT=$?
+   if [ $RESULT -eq 0 ]
+   then
+      rsync $1 $2 "--delete-delay"
+      RESULT=$?
+   fi
+
+   set_status $1 $RESULT
+   if [ $RESULT -eq 0 ]
+   then
+      /root/shell/count.sh $1
    fi
 }
 
 function rsync_rhel {
-   echo -1 > $ROOT/.$1.status
-
-   if [ $3 -eq 1 ]
-   then
-      /usr/bin/rsync -aHq --exclude="repomd.xml" --timeout=900 $2 $ROOT/$1/ > /dev/null
-      return
-   fi
-
-   /usr/bin/rsync -aHq --exclude="repomd.xml" --timeout=900 $2 $ROOT/$1/ > /dev/null
-
-   RESULT=$?
-   if [ $RESULT -eq 0 ]
-   then
-      /usr/bin/rsync -aq --delete-delay --timeout=900 $2 $ROOT/$1/ > /dev/null
-      RESULT=$?
-   fi
-
-   echo $RESULT > $ROOT/.$1.status
-   if [ $RESULT -eq 0 ]
-   then
-      count $1
-   fi
+   rsync_call $1 $2 $3 "--exclude=\"repomd.xml\""
 }
 
 function rsync_debian {
-   echo -1 > $ROOT/.$1.status
+   rsync_call $1 $2 $3 "--exclude=\"*Packages*\" --exclude=\"*Sources*\" --exclude=\"*Release\""
+}
 
-   if [ $3 -eq 1 ]
-   then
-      /usr/bin/rsync -aHq --exclude="Packages*" --exclude="Sources*" --exclude="Release" --timeout=900 $2 $ROOT/$1/ > /dev/null
-      return
-   fi
-
-   /usr/bin/rsync -aHq --exclude="Packages*" --exclude="Sources*" --exclude="Release" --timeout=900 $2 $ROOT/$1/ > /dev/null
-
-   RESULT=$?
-   if [ $RESULT -eq 0 ]
-   then
-      /usr/bin/rsync -aq --delete-delay --timeout=900 $2 $ROOT/$1/ > /dev/null
-      RESULT=$?
-   fi
-
-   echo $RESULT > $ROOT/.$1.status
-   if [ $RESULT -eq 0 ]
-   then
-      count $1
-   fi
+function rsync_common {
+   rsync_call $1 $2 $3
 }
 
 # centos
@@ -98,15 +69,23 @@ unset RESULT
 rsync_rhel repoforge apt.sw.be::pub/freshrpms/pub/dag/ 0
 unset RESULT
 
-# ubuntu
-rsync_debian ubuntu mirrors.ustc.edu.cn::ubuntu 1
-rsync_debian ubuntu archive.ubuntu.com::ubuntu 2
-if [ $RESULT -eq 0 ]; then
-   date -u > $ROOT/ubuntu/project/trace/mirrors.neusoft.edu.cn
-fi
+# kali-images
+rsync_debian kali-images archive-5.kali.org::kali-images 0
 unset RESULT
 
-# ubuntu-release
+# linuxmint
+rsync_debian linuxmint packages.linuxmint.com::packages 0
+unset RESULT
+
+# linuxmint-releases
+rsync_debian linuxmint-releases ftp.heanet.ie::pub/linuxmint.com/ 0
+unset RESULT
+
+# raspbian
+rsync_debian raspbian archive.raspbian.org::archive 0
+unset RESULT
+
+# ubuntu-releases
 rsync_common ubuntu-releases mirrors.ustc.edu.cn::ubuntu-releases 1
 rsync_common ubuntu-releases rsync.releases.ubuntu.com::releases 2
 if [ $RESULT -eq 0 ]; then
@@ -115,30 +94,27 @@ fi
 unset RESULT
 
 # archlinux
-rsync_common archlinux mirrors.ustc.edu.cn::archlinux 1
-rsync_common archlinux ftp.tku.edu.tw::archlinux 2
+rsync_common archlinux ftp.tku.edu.tw::archlinux 0
 unset RESULT
 
 # gentoo
-rsync_common gentoo mirrors.ustc.edu.cn::gentoo 1
-rsync_common gentoo ftp.ussg.iu.edu::gentoo-distfiles 2
+rsync_common gentoo ftp.ussg.iu.edu::gentoo-distfiles 0
 unset RESULT
 
 # gentoo-portage
-rsync_common gentoo-portage mirrors.ustc.edu.cn::gentoo-portage 1
-rsync_common gentoo-portage rsync.us.gentoo.org::gentoo-portage 2
+rsync_common gentoo-portage rsync.us.gentoo.org::gentoo-portage 0
 unset RESULT
 
 # pypi
-echo -1 > $ROOT/.pypi.status
+set_status pypi -1
 /usr/bin/pep381run -q $ROOT/pypi/ > /dev/null
 RESULT=$?
-echo $RESULT > $ROOT/.pypi.status
+set_status pypi $RESULT
 if [ $RESULT -eq 0 ]
 then
-   count pypi
+   /root/shell/count.sh pypi
 else
-   /usr/bin/pep381checkfiles $ROOT/pypi/ > /dev/null
+   /usr/bin/pep381checkfiles $ROOT/pypi/ > /dev/null &
 fi
 unset RESULT
 
@@ -152,6 +128,24 @@ unset RESULT
 
 # putty
 rsync_common putty rsync.chiark.greenend.org.uk::ftp/users/sgtatham/putty-website-mirror/ 0
+unset RESULT
+
+# android
+set_status android -1
+/root/shell/android-mirror.py
+RESULT=$?
+set_status android $RESULT
+if [ $RESULT -eq 0 ]; then
+   /root/shell/count.sh android
+fi
+unset RESULT
+
+# qt
+rsync_common qt master.qt-project.org::qt-all 0
+unset RESULT
+
+# ldp
+rsync_common ldp ftp.ibiblio.org::ldp_mirror 0
 unset RESULT
 
 rm -f $LOCK
