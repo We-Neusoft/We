@@ -37,8 +37,8 @@ def parse(xml_file, namespace):
    for url in repository.findall('.//' + namespace + 'url'):
       process(url.text)
 
-xml_files = ['repository-7.xml', 'addons_list-2.xml', 'addon.xml']
-namespaces = ['{http://schemas.android.com/sdk/android/repository/7}', '{http://schemas.android.com/sdk/android/addons-list/2}', '{http://schemas.android.com/sdk/android/addon/5}']
+xml_files = ['repository-8.xml', 'addons_list-2.xml', 'addon.xml']
+namespaces = ['{http://schemas.android.com/sdk/android/repository/8}', '{http://schemas.android.com/sdk/android/addons-list/2}', '{http://schemas.android.com/sdk/android/addon/5}']
 
 for index in range(len(xml_files)):
    parse(xml_files[index], namespaces[index])
