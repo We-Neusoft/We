@@ -19,8 +19,7 @@ function rsync {
 function rsync_call {
    set_status $1 -1
 
-   if [ $3 -eq 1 ]
-   then
+   if [ $3 -eq 1 ]; then
       rsync $1 $2 "$4"
       return
    fi
@@ -28,16 +27,14 @@ function rsync_call {
    rsync $1 $2 "$4"
 
    RESULT=$?
-   if [ $RESULT -eq 0 ]
-   then
+   if [ $RESULT -eq 0 ]; then
       rsync $1 $2 "--delete-delay"
       RESULT=$?
    fi
 
    set_status $1 $RESULT
-   if [ $RESULT -eq 0 ]
-   then
-      /root/shell/count.sh $1
+   if [ $RESULT -eq 0 ]; then
+      /root/shell/count.sh $1 &
    fi
 }
 
@@ -70,7 +67,7 @@ rsync_rhel repoforge apt.sw.be::pub/freshrpms/pub/dag/ 0
 unset RESULT
 
 # kali-images
-rsync_debian kali-images archive-5.kali.org::kali-images 0
+rsync_debian kali-images archive-2.kali.org::kali-images 0
 unset RESULT
 
 # linuxmint
@@ -107,14 +104,21 @@ unset RESULT
 
 # pypi
 set_status pypi -1
-/usr/bin/pep381run -q $ROOT/pypi/ > /dev/null
+/usr/bin/scl enable python27 "bandersnatch mirror" 2> /dev/null
 RESULT=$?
 set_status pypi $RESULT
-if [ $RESULT -eq 0 ]
-then
-   /root/shell/count.sh pypi
-else
-   /usr/bin/pep381checkfiles $ROOT/pypi/ > /dev/null &
+if [ $RESULT -eq 0 ]; then
+   /root/shell/count.sh pypi &
+fi
+unset RESULT
+
+# rubygems
+set_status rubygems -1
+/usr/bin/gem mirror > /dev/null
+RESULT=$?
+set_status rubygems $RESULT
+if [ $RESULT -eq 0 ]; then
+   /root/shell/count.sh rubygems &
 fi
 unset RESULT
 
@@ -132,11 +136,11 @@ unset RESULT
 
 # android
 set_status android -1
-/root/shell/android-mirror.py
+/root/shell/android-mirror.py > /dev/null
 RESULT=$?
 set_status android $RESULT
 if [ $RESULT -eq 0 ]; then
-   /root/shell/count.sh android
+   /root/shell/count.sh android &
 fi
 unset RESULT
 
