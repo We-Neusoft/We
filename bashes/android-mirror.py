@@ -1,44 +1,69 @@
 #!/usr/bin/python
-
-from os import path, stat, utime
-from urllib import urlretrieve, urlopen
+from string import rfind
 from time import mktime, strptime
-from xml.etree import ElementTree as ET
+from os import makedirs, path, stat, utime
+from urllib import urlretrieve, urlopen
+from xml.etree import ElementTree
 
-work_dir = '/storage/mirror/android/repository/'
-base_url = 'https://dl-ssl.google.com/android/repository/'
+base_url = 'http://dl.google.com/android/repository/'
+out_dir = '/storage/mirror/android/repository'
 
-def download(file_name, last_modified):
-   urlretrieve(base_url + file_name, work_dir + file_name)
-   utime(work_dir + file_name, (last_modified, last_modified))
+def download(filename, last_modified):
+   file = out_dir + filename
+   print 'Downloading ' + filename
+   urlretrieve(base_url + filename, file)
+   utime(file, (last_modified, last_modified))
 
-   process(file_name)
+   process(filename)
 
-def process(file_name):
-   if file_name.startswith('http'):
+def process(filename, size=-1):
+   file = out_dir + filename
+   if path.isfile(file) and stat(file).st_size == size:
+      print 'Skipping: ' + filename
       return
 
-   handle = urlopen(base_url + file_name)
+   print 'Processing: ' + filename
+   handle = urlopen(base_url + filename)
    headers = handle.info()
    content_length = int(headers.getheader('Content-Length'))
    last_modified = mktime(strptime(headers.getheader('Last-Modified'), '%a, %d %b %Y %H:%M:%S %Z'))
 
-   if path.exists(work_dir + file_name):
-      file_stat = stat(work_dir + file_name)
-      if (file_stat.st_mtime == last_modified) and (file_stat.st_size == content_length):
-         return
+   if rfind(filename, '/') > 0:
+      dir = out_dir + filename[:rfind(filename, '/')]
+   else:
+      dir = out_dir
 
-   download(file_name, last_modified)
+   if not path.isdir(dir):
+      print 'Creating ' + dir
+      makedirs(dir)
 
-def parse(xml_file, namespace):
-   process(xml_file)
+   if not path.isfile(file):
+      download(filename, last_modified)
+   else:
+      file_stat = stat(file)
+      if file_stat.st_mtime != last_modified or file_stat.st_size != content_length:
+         download(filename, last_modified)
+      else:
+         print 'Skipping: ' + filename
 
-   repository = ET.parse(work_dir + xml_file).getroot()
-   for url in repository.findall('.//' + namespace + 'url'):
-      process(url.text)
+def fetch(file):
+   if base_url in file:
+      dir = file[len(base_url) - 1:rfind(file, '/') + 1]
+      file = file[rfind(file, '/') + 1:]
+   elif 'http' in file:
+      return
+   else:
+      dir = '/'
+   process(dir + file)
 
-xml_files = ['repository-8.xml', 'addons_list-2.xml', 'addon.xml']
-namespaces = ['{http://schemas.android.com/sdk/android/repository/8}', '{http://schemas.android.com/sdk/android/addons-list/2}', '{http://schemas.android.com/sdk/android/addon/5}']
+   tree = ElementTree.parse(out_dir + dir + file)
+   for element in tree.getiterator():
+      if element.tag.split('}')[1] == 'url':
+         if element.text[-4:] != '.xml':
+            if not 'http' in element.text:
+               process(dir + element.text)
+         else:
+            fetch(element.text)
 
-for index in range(len(xml_files)):
-   parse(xml_files[index], namespaces[index])
+for file in ['repository-8.xml', 'repository-7.xml', 'repository-6.xml', 'repository-5.xml', 'addons_list-2.xml', 'addons_list-1.xml']:
+   fetch(file)
