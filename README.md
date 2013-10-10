@@ -14,12 +14,13 @@ We · Cloud云技术小组（以下简称本小组）是大连东软信息学院
 
 ### 运行环境
 
-Python 2.x (2.6.5+)
-Django 1.5+
+* Python 2.x (2.6.5+)
+* Django 1.4+
 
 ### 配置说明
 
 下载`sites`目录中的全部文件，在`we`目录中创建`settings.py`配置文件，启动`Django`服务器即可。
+
 *注意：我们在`we`目录中存放了一份本小组正在使用的配置文件样本`settings.py.sample`，并将敏感信息使用`WE_CLOUD`进行了替换。*
 
 - - -
